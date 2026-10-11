@@ -8,7 +8,7 @@ A polished weather dashboard that fetches live weather data from the public Open
 - 6-hour outlook and a 7-day forecast
 - Toggle between light and dark mode
 - Toggle between °C and °F
-- Use browser geolocation to fetch nearby weather
+- Use browser geolocation for nearby weather
 - Responsive for desktop and mobile devices
 - No API key required
 
@@ -19,8 +19,8 @@ A polished weather dashboard that fetches live weather data from the public Open
 - Open-Meteo API
 
 ## Run locally
-1. Download or clone the repository
-2. Open `index.html` in your browser, or run a local server:
+1. Clone or download the repository
+2. Open `index.html` in a browser, or serve it locally:
 
 ```bash
 python -m http.server 8000
@@ -34,8 +34,8 @@ http://localhost:8000
 
 ## Files
 - `index.html` — dashboard structure and controls
-- `styles.css` — responsive weather dashboard styling
-- `app.js` — data fetching, rendering, themes, geolocation, and unit conversion
+- `styles.css` — responsive dashboard styling and theme system
+- `app.js` — API fetching, rendering, unit conversion, geolocation, and theme toggling
 
 ## API used
 - Open-Meteo geocoding and forecast API

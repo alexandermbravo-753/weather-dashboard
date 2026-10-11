@@ -34,6 +34,7 @@ const state = {
   unit: 'celsius',
   theme: 'dark',
   lastLocationLabel: defaultCity,
+  lastWeather: null,
 };
 
 const elements = {
@@ -66,16 +67,12 @@ function applyTheme(theme) {
   elements.themeToggle.textContent = isLight ? '🌙 Night' : '☀️ Day';
 }
 
-function toCelsius(value) {
-  return value;
-}
-
 function toFahrenheit(value) {
   return (value * 9) / 5 + 32;
 }
 
 function formatTemperature(value) {
-  const temp = state.unit === 'celsius' ? toCelsius(value) : toFahrenheit(value);
+  const temp = state.unit === 'celsius' ? value : toFahrenheit(value);
   return `${Math.round(temp)}°${state.unit === 'celsius' ? 'C' : 'F'}`;
 }
 
@@ -104,16 +101,6 @@ function formatDay(value) {
   const date = new Date(value);
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
-  }).format(date);
-}
-
-function formatDayLong(value) {
-  if (!value) return 'Today';
-
-  const date = new Date(value);
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
   }).format(date);
 }
 
@@ -147,8 +134,8 @@ function renderHourlyForecast(data) {
   const hourly = data.hourly;
   const fragment = document.createDocumentFragment();
 
-  const hoursToShow = 6;
-  for (let i = 0; i < hoursToShow; i += 1) {
+  const count = Math.min(6, hourly.time.length);
+  for (let i = 0; i < count; i += 1) {
     const card = elements.hourlyItemTemplate.content.cloneNode(true);
     const time = card.querySelector('.hour-time');
     const icon = card.querySelector('.hour-icon');
@@ -216,14 +203,14 @@ async function geocodeCity(city) {
   };
 }
 
-async function fetchWeatherData(latitude, longitude, locationLabel) {
+async function fetchWeatherData(latitude, longitude) {
   const weatherUrl = new URL('https://api.open-meteo.com/v1/forecast');
 
   weatherUrl.search = new URLSearchParams({
     latitude: latitude,
     longitude: longitude,
     current: 'temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code',
-    hourly: 'temperature_2m,weather_code,apparent_temperature',
+    hourly: 'temperature_2m,weather_code',
     daily: 'weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset',
     timezone: 'auto',
     forecast_days: '7',
@@ -235,21 +222,22 @@ async function fetchWeatherData(latitude, longitude, locationLabel) {
     throw new Error('The weather service is temporarily unavailable.');
   }
 
-  const weather = await response.json();
-  return {
-    weather,
-    locationLabel,
-  };
+  return response.json();
+}
+
+function displayWeather(weather, placeName) {
+  renderCurrentWeather(weather, placeName);
+  renderHourlyForecast(weather);
+  renderForecast(weather);
+  state.lastWeather = weather;
 }
 
 async function loadWeatherFromCity(city) {
   try {
     const location = await geocodeCity(city);
-    const result = await fetchWeatherData(location.latitude, location.longitude, location.name);
+    const weather = await fetchWeatherData(location.latitude, location.longitude);
     state.lastLocationLabel = location.name;
-    renderCurrentWeather(result.weather, result.locationLabel);
-    renderHourlyForecast(result.weather);
-    renderForecast(result.weather);
+    displayWeather(weather, location.name);
   } catch (error) {
     showWeatherError(error.message);
   }
@@ -257,11 +245,9 @@ async function loadWeatherFromCity(city) {
 
 async function loadWeatherFromCoordinates(latitude, longitude) {
   try {
-    const result = await fetchWeatherData(latitude, longitude, 'My Location');
+    const weather = await fetchWeatherData(latitude, longitude);
     state.lastLocationLabel = 'My Location';
-    renderCurrentWeather(result.weather, result.locationLabel);
-    renderHourlyForecast(result.weather);
-    renderForecast(result.weather);
+    displayWeather(weather, 'My Location');
   } catch (error) {
     showWeatherError(error.message);
   }
@@ -293,19 +279,17 @@ function toggleUnits() {
   state.unit = state.unit === 'celsius' ? 'fahrenheit' : 'celsius';
   elements.unitToggle.textContent = state.unit === 'celsius' ? '°F' : '°C';
 
-  if (state.lastLocationLabel) {
-    const lastLocation = state.lastLocationLabel;
-    const searchText = elements.cityInput.value.trim();
-
-    // We intentionally refresh the currently displayed location if one exists.
-    if (searchText) {
-      loadWeatherFromCity(searchText);
-    } else if (lastLocation === 'My Location') {
-      // no-op, location persists
-    } else {
-      loadWeatherFromCity(lastLocation);
-    }
+  if (state.lastWeather) {
+    const locationName = state.lastLocationLabel || 'New York';
+    renderCurrentWeather(state.lastWeather, locationName);
+    renderHourlyForecast(state.lastWeather);
+    renderForecast(state.lastWeather);
   }
+}
+
+function setLoadingState(isLoading) {
+  elements.locationBtn.disabled = isLoading;
+  elements.locationBtn.textContent = isLoading ? '📍 Loading...' : '📍 My location';
 }
 
 elements.searchForm.addEventListener('submit', async (event) => {
@@ -329,20 +313,17 @@ elements.locationBtn.addEventListener('click', () => {
     return;
   }
 
-  elements.locationBtn.textContent = '📍 Loading...';
-  elements.locationBtn.disabled = true;
+  setLoadingState(true);
 
   navigator.geolocation.getCurrentPosition(
     async (position) => {
       const { latitude, longitude } = position.coords;
       await loadWeatherFromCoordinates(latitude, longitude);
-      elements.locationBtn.textContent = '📍 My location';
-      elements.locationBtn.disabled = false;
+      setLoadingState(false);
     },
     () => {
       showWeatherError('Location access was denied. Try searching for a city instead.');
-      elements.locationBtn.textContent = '📍 My location';
-      elements.locationBtn.disabled = false;
+      setLoadingState(false);
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
