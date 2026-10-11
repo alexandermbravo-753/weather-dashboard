@@ -1,13 +1,15 @@
 # weather-dashboard
 
-A simple and modern weather dashboard that fetches live weather data from the public Open-Meteo API.
+A polished weather dashboard that fetches live weather data from the public Open-Meteo API.
 
 ## Features
-- Search for cities worldwide
-- Current temperature, feels-like, humidity, and wind speed
-- Sunrise and sunset details
-- 7-day forecast
-- Responsive layout for desktop and mobile
+- Search by city name
+- Current weather details with humidity, wind, feels-like, sunrise, and sunset
+- 6-hour outlook and a 7-day forecast
+- Toggle between light and dark mode
+- Toggle between °C and °F
+- Use browser geolocation to fetch nearby weather
+- Responsive for desktop and mobile devices
 - No API key required
 
 ## Tech stack
@@ -17,8 +19,8 @@ A simple and modern weather dashboard that fetches live weather data from the pu
 - Open-Meteo API
 
 ## Run locally
-1. Clone the repository
-2. Open `index.html` in a browser, or serve it locally using a simple HTTP server:
+1. Download or clone the repository
+2. Open `index.html` in your browser, or run a local server:
 
 ```bash
 python -m http.server 8000
@@ -31,9 +33,9 @@ http://localhost:8000
 ```
 
 ## Files
-- `index.html` — dashboard structure
-- `styles.css` — visual styling
-- `app.js` — API requests and UI rendering
+- `index.html` — dashboard structure and controls
+- `styles.css` — responsive weather dashboard styling
+- `app.js` — data fetching, rendering, themes, geolocation, and unit conversion
 
 ## API used
 - Open-Meteo geocoding and forecast API

@@ -27,18 +27,30 @@
           </div>
         </div>
 
-        <form id="search-form" class="search-form" autocomplete="off">
-          <label class="sr-only" for="city-input">Search city</label>
-          <input
-            id="city-input"
-            name="city"
-            type="text"
-            placeholder="Search for a city"
-            aria-label="Search city"
-          />
-          <button type="submit">Search</button>
-        </form>
+        <div class="toolbar">
+          <button id="theme-toggle" class="toolbar-btn" type="button" aria-label="Toggle theme">
+            🌙 Night
+          </button>
+          <button id="unit-toggle" class="toolbar-btn" type="button" aria-label="Toggle units">
+            °F
+          </button>
+          <button id="location-btn" class="toolbar-btn accent" type="button">
+            📍 My location
+          </button>
+        </div>
       </header>
+
+      <form id="search-form" class="search-form" autocomplete="off">
+        <label class="sr-only" for="city-input">Search city</label>
+        <input
+          id="city-input"
+          name="city"
+          type="text"
+          placeholder="Search for a city"
+          aria-label="Search city"
+        />
+        <button type="submit">Search</button>
+      </form>
 
       <main class="dashboard">
         <section class="hero card" id="current-weather">
@@ -97,6 +109,13 @@
         </aside>
       </main>
 
+      <section class="card hourly-panel">
+        <div class="forecast-header">
+          <p class="section-label">Hourly outlook</p>
+        </div>
+        <div id="hourly-forecast" class="hourly-forecast" aria-live="polite"></div>
+      </section>
+
       <section class="card forecast-panel">
         <div class="forecast-header">
           <p class="section-label">7-day forecast</p>
@@ -113,6 +132,14 @@
           <span class="high"></span>
           <span class="low"></span>
         </div>
+      </article>
+    </template>
+
+    <template id="hourly-item-template">
+      <article class="hour-card">
+        <p class="hour-time"></p>
+        <div class="hour-icon" aria-hidden="true"></div>
+        <div class="hour-temp"></div>
       </article>
     </template>
 
