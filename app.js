@@ -101,6 +101,7 @@ function formatDay(value) {
   const date = new Date(value);
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
+    timeZone: 'UTC',
   }).format(date);
 }
 
