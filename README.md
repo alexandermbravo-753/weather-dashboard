@@ -37,5 +37,15 @@ http://localhost:8000
 - `styles.css` — responsive dashboard styling and theme system
 - `app.js` — API fetching, rendering, unit conversion, geolocation, and theme toggling
 
+## Regression tests
+
+With Node.js 18 or newer, run:
+
+```bash
+node --test tests/app.test.cjs
+```
+
+These tests execute `app.js` with simulated API responses, geolocation callbacks, and a minimal DOM double. They cover successful requests, failures, unit toggles after errors, and successful retries, without dependencies or live network access. They do not replace a full browser test.
+
 ## API used
 - Open-Meteo geocoding and forecast API
