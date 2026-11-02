@@ -255,6 +255,7 @@ async function loadWeatherFromCoordinates(latitude, longitude) {
 }
 
 function showWeatherError(message) {
+  state.lastWeather = null;
   elements.currentLocationName.textContent = 'Weather unavailable';
   elements.currentIcon.textContent = '⚠️';
   elements.currentTemp.textContent = '--°';
